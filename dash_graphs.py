@@ -9,7 +9,8 @@ nba_fig = px.scatter(combined_data, x="E_DEF_RATING", y="DEFLECTIONS", size='W_P
 
 # Create the app
 app = dash.Dash()
-app.layout = html.Div([
+app.layout = html.Div(
+    children=[html.H1(children='NBA Data Visualizer', style={'textAlign': 'center'}),
     dcc.Graph(figure=nba_fig)
 ])
 
