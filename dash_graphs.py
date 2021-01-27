@@ -11,7 +11,8 @@ nba_fig = px.scatter(combined_data, x="E_DEF_RATING", y="DEFLECTIONS", size='W_P
 app = dash.Dash()
 app.layout = html.Div(
     children=[html.H1(children='NBA Data Visualizer', style={'textAlign': 'center'}),
-    dcc.Graph(figure=nba_fig)
+    dcc.Graph(figure=nba_fig),
+    dcc.Dropdown(options=[{'label': i, 'value': i} for i in combined_data.columns])
 ])
 
 app.run_server(debug=True, use_reloader=False)
