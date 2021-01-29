@@ -12,7 +12,38 @@ app = dash.Dash()
 app.layout = html.Div(
     children=[html.H1(children='NBA Data Visualizer', style={'textAlign': 'center'}),
     dcc.Graph(figure=nba_fig),
-    dcc.Dropdown(options=[{'label': i, 'value': i} for i in combined_data.columns])
+    html.Div(children=[
+        html.Table(children=[
+            html.Colgroup(children=[
+                html.Col(),
+                html.Col(),
+                html.Col()
+            ]),
+            html.Tr(children=[
+                html.Td(children=[html.B('X Coordinate Parameter')]),
+                html.Td(),
+                html.Td(children=[html.B('Y Coordinate Parameter')]),
+            ]),
+            html.Colgroup(children=[
+                html.Col(),
+                html.Col(),
+                html.Col() # Figure out persistence properties
+            ]),
+            html.Tr(children=[
+                html.Td(children=[
+                    dcc.Dropdown(options=[{'label': i, 'value': i} for i in combined_data.columns],
+                        placeholder='Select a X Coordinate Parameter',
+                        persistence=True)
+                ]),
+                html.Td(),
+                html.Td(children=[
+                    dcc.Dropdown(options=[{'label': i, 'value': i} for i in combined_data.columns],
+                        placeholder='Select a X Coordinate Parameter',
+                        persistence=True)
+                ])
+            ])
+        ])
+    ])
 ])
 
 app.run_server(debug=True, use_reloader=False)
