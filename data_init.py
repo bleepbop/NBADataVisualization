@@ -13,28 +13,21 @@ import plotly.express as px
 
 def get_teams():
     team_info = teams.get_teams()
-    team_list = [team['full_name'] for team in team_info]
-    return team_list
+    return team_info
 
-def init_dataframe():
-    philly = teams.find_teams_by_city('Philadelphia')[0]
+def init_dataframe(team_id):
     metrics = playerestimatedmetrics.PlayerEstimatedMetrics().get_data_frames()[0]
 
     '''
     info = teamplayeronoffdetails.TeamPlayerOnOffDetails(team_id=philly['id'])
     players_on = info.get_data_frames()[1]
     players_off = info.get_data_frames()[2]
-
-    display(HTML(players_on.to_html()))
-    display(HTML(players_off.to_html()))
     '''
 
     # Get player names for a given team
-    team = teamplayerdashboard.TeamPlayerDashboard(team_id=philly['id'])
+    team = teamplayerdashboard.TeamPlayerDashboard(team_id=team_id)
     team_df = team.get_data_frames()[1]
     roster = team_df[['PLAYER_ID', 'PLAYER_NAME']]
-
-    player_id = roster.loc[roster['PLAYER_NAME'] == 'Ben Simmons']['PLAYER_ID'].values[0]
 
     hustle_stats = leaguehustlestatsplayer.LeagueHustleStatsPlayer()
     hustle_df = hustle_stats.get_data_frames()[0]

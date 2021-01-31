@@ -5,7 +5,8 @@ from dash.dependencies import Input, Output
 from data_init import *
 
 NBA_TEAMS = get_teams()
-combined_data = init_dataframe()
+philly = teams.find_teams_by_city('Philadelphia')[0]['id']
+combined_data = init_dataframe(philly)
 # Create figure
 x_value = "E_DEF_RATING"
 y_value = "DEFLECTIONS"
@@ -19,7 +20,7 @@ app.layout = html.Div(
         dcc.Graph(id='nba-scatter-plot', figure=nba_fig),
         dcc.Dropdown(
             id="dropdown-nba-team",
-            options=[{'label': i, 'value': i} for i in NBA_TEAMS],
+            options=[{'label': team['full_name'], 'value': team['id']} for team in NBA_TEAMS],
             placeholder="Insert team name",
             persistence=True
         ),
@@ -39,12 +40,14 @@ app.layout = html.Div(
 @app.callback(
     Output(component_id='nba-scatter-plot', component_property='figure'),
     Input(component_id='x-coord-dropdown', component_property='value'),
-    Input(component_id='y-coord-dropdown', component_property='value')
+    Input(component_id='y-coord-dropdown', component_property='value'),
+    Input(component_id='dropdown-nba-team', component_property='value'),
 )
-def update_scatter_x_parameter(input_x_value, input_y_value):
-    return create_scatterplot(input_x_value, input_y_value, combined_data)
+def update_scatter(input_x_value, input_y_value, team_id):
+    return create_scatterplot(input_x_value, input_y_value, team_id)
 
-def create_scatterplot(x_parameter, y_parameter, dataset):
+def create_scatterplot(x_parameter, y_parameter, team_id):
+    dataset = init_dataframe(team_id)
     return px.scatter(dataset, x=x_parameter, y=y_parameter, size='W_PCT', color='PLAYER_NAME')
 
 app.run_server(debug=True, use_reloader=True)
