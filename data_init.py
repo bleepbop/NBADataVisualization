@@ -11,6 +11,25 @@ import pandas as pd
 import plotly.graph_objects as go
 import plotly.express as px
 
+columns_dict = {"Contested Shots": "CONTESTED_SHOTS",
+                "Contested 2 Pt Shots": "CONTESTED_SHOTS_2PT",
+                "Contested 3 Pt Shots": "CONTESTED_SHOTS_3PT",
+                "Deflections": "DEFLECTIONS",
+                "Charges Drawn": "CHARGES_DRAWN",
+                "Screen Assists": "SCREEN_ASSISTS",
+                "Screen Assist Pts": "SCREEN_AST_PTS",
+                "Offensive Loose Balls Recovered": "OFF_LOOSE_BALLS_RECOVERED",
+                "Defensive Loose Balls Recovered": "DEF_LOOSE_BALLS_RECOVERED",
+                "Loose Balls Recovered": "LOOSE_BALLS_RECOVERED",
+                "Offensive Boxouts": "OFF_BOXOUTS",
+                "Defensive Boxouts": "DEF_BOXOUTS"
+                }
+
+impact_stats_dict = {"Offensive Rating": 'E_OFF_RATING',
+                     "Defensive Rating": 'E_DEF_RATING',
+                     "Net Rating": 'E_NET_RATING',
+                     "Win Percent": 'W_PCT'}
+
 def get_teams():
     team_info = teams.get_teams()
     return team_info
@@ -37,18 +56,7 @@ def init_dataframe(team_id):
     del hustle_df['PCT_BOX_OUTS_DEF']
 
     # Columns to normalize:
-    cols = ["CONTESTED_SHOTS",
-            "CONTESTED_SHOTS_2PT",
-            "CONTESTED_SHOTS_3PT",
-            "DEFLECTIONS",
-            "CHARGES_DRAWN",
-            "SCREEN_ASSISTS",
-            "SCREEN_AST_PTS",
-            "OFF_LOOSE_BALLS_RECOVERED",
-            "DEF_LOOSE_BALLS_RECOVERED",
-            "LOOSE_BALLS_RECOVERED",
-            "OFF_BOXOUTS",
-            "DEF_BOXOUTS"]
+    cols = columns_dict.values()
 
     team_metrics = []
     df_list = []
