@@ -44,9 +44,6 @@ app.layout = html.Div(
     Input(component_id='dropdown-nba-team', component_property='value'),
 )
 def update_scatter(input_x_value, input_y_value, team_id):
-    return create_scatterplot(input_x_value, input_y_value, team_id)
-
-def create_scatterplot(x_parameter, y_parameter, team_id):
     dataset = init_dataframe(team_id)
     return px.scatter(dataset, x=x_parameter, y=y_parameter, size='W_PCT', color='PLAYER_NAME')
 
