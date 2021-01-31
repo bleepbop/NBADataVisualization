@@ -4,6 +4,7 @@ import dash_html_components as html
 from dash.dependencies import Input, Output
 from data_init import *
 
+NBA_TEAMS = get_teams()
 combined_data = init_dataframe()
 # Create figure
 x_value = "E_DEF_RATING"
@@ -13,19 +14,27 @@ nba_fig = px.scatter(combined_data, x=x_value, y=y_value, size='W_PCT', color='P
 # Create the app
 app = dash.Dash()
 app.layout = html.Div(
-    children=[html.H1(children='NBA Data Visualizer', style={'textAlign': 'center'}),
-    dcc.Graph(id='nba-scatter-plot', figure=nba_fig),
-    dcc.Dropdown(
-                id='x-coord-dropdown',
-                options=[{'label': i, 'value': i} for i in combined_data.columns],
-                placeholder='Select a X Coordinate Parameter',
-                persistence=True),
-    dcc.Dropdown(
-                id='y-coord-dropdown',
-                options=[{'label': i, 'value': i} for i in combined_data.columns],
-                placeholder='Select a X Coordinate Parameter',
-                persistence=True)
-])
+    children=[
+        html.H1(children='NBA Data Visualizer', style={'textAlign': 'center'}),
+        dcc.Graph(id='nba-scatter-plot', figure=nba_fig),
+        dcc.Dropdown(
+            id="dropdown-nba-team",
+            options=[{'label': i, 'value': i} for i in NBA_TEAMS],
+            placeholder="Insert team name",
+            persistence=True
+        ),
+        dcc.Dropdown(
+                    id='x-coord-dropdown',
+                    options=[{'label': i, 'value': i} for i in combined_data.columns],
+                    placeholder='Select a X Coordinate Parameter',
+                    persistence=True),
+        dcc.Dropdown(
+                    id='y-coord-dropdown',
+                    options=[{'label': i, 'value': i} for i in combined_data.columns],
+                    placeholder='Select a X Coordinate Parameter',
+                    persistence=True)
+    ]
+)
 
 @app.callback(
     Output(component_id='nba-scatter-plot', component_property='figure'),
