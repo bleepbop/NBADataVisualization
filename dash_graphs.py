@@ -31,13 +31,17 @@ app.layout = html.Div(
             ]),
             html.Tr(children=[
                 html.Td(children=[
-                    dcc.Dropdown(options=[{'label': i, 'value': i} for i in combined_data.columns],
+                    dcc.Dropdown(
+                        id='x-coord-dropdown',
+                        options=[{'label': i, 'value': i} for i in combined_data.columns],
                         placeholder='Select a X Coordinate Parameter',
                         persistence=True)
                 ]),
                 html.Td(),
                 html.Td(children=[
-                    dcc.Dropdown(options=[{'label': i, 'value': i} for i in combined_data.columns],
+                    dcc.Dropdown(
+                        id='y-coord-dropdown',
+                        options=[{'label': i, 'value': i} for i in combined_data.columns],
                         placeholder='Select a X Coordinate Parameter',
                         persistence=True)
                 ])
