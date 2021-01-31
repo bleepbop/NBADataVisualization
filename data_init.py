@@ -3,12 +3,18 @@ from nba_api.stats.endpoints import (commonplayerinfo,
                                      leaguehustlestatsplayerleaders,
                                      leaguehustlestatsplayer,
                                      teamplayerdashboard,
+                                     teaminfocommon,
                                      playerestimatedmetrics)
 from nba_api.stats.static import teams
 from pandas import DataFrame
 import pandas as pd
 import plotly.graph_objects as go
 import plotly.express as px
+
+def get_teams():
+    team_info = teams.get_teams()
+    team_list = [team['full_name'] for team in team_info]
+    return team_list
 
 def init_dataframe():
     philly = teams.find_teams_by_city('Philadelphia')[0]
