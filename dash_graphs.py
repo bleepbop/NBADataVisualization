@@ -68,7 +68,7 @@ app.layout = dbc.Container(
         dbc.Row(
             [
                 dbc.Col(controls, md=4),
-                dcc.Graph(id='nba-scatter-plot', figure=nba_fig),
+                dbc.Col(dcc.Graph(id='nba-scatter-plot', figure=nba_fig), md=8),
             ],
             align="center",
         )
