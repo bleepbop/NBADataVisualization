@@ -4,12 +4,14 @@ from nba_api.stats.endpoints import (commonplayerinfo,
                                      leaguehustlestatsplayer,
                                      teamplayerdashboard,
                                      teaminfocommon,
-                                     playerestimatedmetrics)
-from nba_api.stats.static import teams
+                                     playerestimatedmetrics,
+                                     playerfantasyprofile)
+from nba_api.stats.static import teams, players
 from pandas import DataFrame
 import pandas as pd
 import plotly.graph_objects as go
 import plotly.express as px
+import re
 
 columns_dict = {"Contested Shots": "CONTESTED_SHOTS",
                 "Contested 2 Pt Shots": "CONTESTED_SHOTS_2PT",
@@ -29,6 +31,35 @@ impact_stats_dict = {"Offensive Rating": 'E_OFF_RATING',
                      "Defensive Rating": 'E_DEF_RATING',
                      "Net Rating": 'E_NET_RATING',
                      "Win Percent": 'W_PCT'}
+
+def get_fantasy_adp_df():
+    url = 'https://www.cbssports.com/fantasy/basketball/draft/averages/'
+    df = pd.read_html(url)[0]
+    fantasy_adp_df = df[['Player', 'Avg Pos']]
+    return fantasy_adp_df
+
+def create_fantasy_df():
+    adp_df = get_fantasy_adp_df()
+    total_players = adp_df['Player']
+    dfs_list = []
+    for player in total_players:
+        regex = re.compile(r'^{}$'.format(player))
+        player = players.find_players_by_full_name(regex)['PLAYER_ID']
+        fantasy_df = playerfantasyprofile.PlayerFantasyProfile().get_data_frames()[4]  # Return the 'Overall' df
+        fantasy_df['Player'] = player
+        dfs_list.append(fantasy_df[['Player', 'NBA_FANTASY_PTS']])
+    # Create single df containing individual player fantasy data
+    combined_fantasy_data_df = pd.concat(df_list)
+    # Merge on player name
+    merged_df = pd.merge(adp_df, combined_fantasy_data_df, on='Player')
+    return
+
+def create_players_df():
+    all_players = players.get_active_players()
+    df = pd.DataFrame(all_players)
+    df.rename(columns = {'full_name':'Player'}, inplace = True)
+    pid_df = df[['id', 'Player']]
+    return pid_df
 
 def get_teams():
     team_info = teams.get_teams()
