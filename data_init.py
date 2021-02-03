@@ -45,13 +45,11 @@ def create_fantasy_df():
     adp_df = get_fantasy_adp_df()
     total_fantasy_players = adp_df['Player']
     player_id_df = create_active_players_df()
-    print('size', player_id_df.size)
     fantasy_data_df = fantasywidget.FantasyWidget().get_data_frames()[0]
     dfs_list = []
 
     for index, row in player_id_df.iterrows():
         player = row['Player']
-        print(index)
         pid = row['id']
 
         # Continue if we don't have ADP data for this player.
@@ -62,8 +60,15 @@ def create_fantasy_df():
 
         player_fantasy_data = fantasy_data_df.loc[fantasy_data_df['PLAYER_ID'] == pid].copy()
         fantasy_avgs = (player_fantasy_data['NBA_FANTASY_PTS'])
+
         if type(fantasy_avgs) == pd.core.series.Series:
-            fantasy_avgs = fantasy_avgs.values
+            if fantasy_avgs.size > 1:
+                fantasy_avgs = fantasy_avgs.mean()
+            elif fantasy_avgs.size == 0:
+                fantasy_avgs = 0
+            else:
+                fantasy_avgs = fantasy_avgs.values
+        fantasy_avgs = float(fantasy_avgs)
         new_df = DataFrame(data=[[player, player_adp, fantasy_avgs]], columns=['Player', 'ADP', 'Fantasy Average Per Game'])
         dfs_list.append(new_df)
     # Create single df containing individual player fantasy data

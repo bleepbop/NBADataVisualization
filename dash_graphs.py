@@ -15,7 +15,14 @@ x_value = "E_DEF_RATING"
 y_value = "DEFLECTIONS"
 nba_fig = px.scatter(combined_data, x=x_value, y=y_value, size='W_PCT', color='PLAYER_NAME')
 fantasy_df = create_fantasy_df()
-fantasy_fig = px.scatter(fantasy_df, x='ADP', y='Fantasy Average Per Game')
+fantasy_fig = px.scatter(fantasy_df,
+                         x='ADP',
+                         y='Fantasy Average Per Game',
+                         labels={
+                             "Player": "Player Name",
+                             "ADP": "Average Draft Position",
+                             "Fantasy Average Per Game": "Average Fantasy Points/Game"
+                         },)
 
 # Create figure controls.
 controls = dbc.Card(
