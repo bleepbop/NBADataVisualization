@@ -12,6 +12,7 @@ import pandas as pd
 import plotly.graph_objects as go
 import plotly.express as px
 import re
+from pprint import pp
 
 columns_dict = {"Contested Shots": "CONTESTED_SHOTS",
                 "Contested 2 Pt Shots": "CONTESTED_SHOTS_2PT",
@@ -33,6 +34,7 @@ impact_stats_dict = {"Offensive Rating": 'E_OFF_RATING',
                      "Win Percent": 'W_PCT'}
 
 def get_fantasy_adp_df():
+    # All credit for ADP goes to CBS Sports.
     url = 'https://www.cbssports.com/fantasy/basketball/draft/averages/'
     df = pd.read_html(url)[0]
     fantasy_adp_df = df[['Player', 'Avg Pos']]
@@ -40,21 +42,30 @@ def get_fantasy_adp_df():
 
 def create_fantasy_df():
     adp_df = get_fantasy_adp_df()
-    total_players = adp_df['Player']
+    total_fantasy_players = adp_df['Player']
+    player_id_df = create_active_players_df()
+    print('size', player_id_df.size)
     dfs_list = []
-    for player in total_players:
-        regex = re.compile(r'^{}$'.format(player))
-        player = players.find_players_by_full_name(regex)['PLAYER_ID']
-        fantasy_df = playerfantasyprofile.PlayerFantasyProfile().get_data_frames()[4]  # Return the 'Overall' df
+
+    for index, row in player_id_df.iterrows():
+        player = row['Player']
+        print(index)
+        pid = row['id']
+        player_df = adp_df[adp_df['Player'].str.contains(player)]
+        player_adp = player_df['Avg Pos']
+
+        fantasy_df = playerfantasyprofile.PlayerFantasyProfile(player_id=pid).get_data_frames()[0]  # Return the 'Overall' df
         fantasy_df['Player'] = player
-        dfs_list.append(fantasy_df[['Player', 'NBA_FANTASY_PTS']])
+        fantasy_df['ADP'] = player_adp
+        dfs_list.append(fantasy_df[['Player', 'ADP', 'NBA_FANTASY_PTS']])
     # Create single df containing individual player fantasy data
     combined_fantasy_data_df = pd.concat(df_list)
+    print(combined_fantasy_data_df)
     # Merge on player name
-    merged_df = pd.merge(adp_df, combined_fantasy_data_df, on='Player')
+    #merged_df = pd.merge(adp_df, combined_fantasy_data_df, on='Player')
     return
 
-def create_players_df():
+def create_active_players_df():
     all_players = players.get_active_players()
     df = pd.DataFrame(all_players)
     df.rename(columns = {'full_name':'Player'}, inplace = True)

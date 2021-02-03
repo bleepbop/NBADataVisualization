@@ -14,7 +14,6 @@ combined_data = init_dataframe(philly)
 x_value = "E_DEF_RATING"
 y_value = "DEFLECTIONS"
 nba_fig = px.scatter(combined_data, x=x_value, y=y_value, size='W_PCT', color='PLAYER_NAME')
-create_players_df()
 create_fantasy_df()
 
 # Create figure controls.
