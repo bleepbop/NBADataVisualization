@@ -58,16 +58,16 @@ def create_fantasy_df():
         if not adp_df['Player'].str.contains(player).sum():
             continue
         player_df = adp_df[adp_df['Player'].str.contains(player)]
-        player_adp = player_df['Avg Pos']
+        player_adp = float(player_df['Avg Pos'])
 
         player_fantasy_data = fantasy_data_df.loc[fantasy_data_df['PLAYER_ID'] == pid].copy()
-        fantasy_avgs = player_fantasy_data['NBA_FANTASY_PTS']
-
+        fantasy_avgs = (player_fantasy_data['NBA_FANTASY_PTS'])
+        if type(fantasy_avgs) == pd.core.series.Series:
+            fantasy_avgs = fantasy_avgs.values
         new_df = DataFrame(data=[[player, player_adp, fantasy_avgs]], columns=['Player', 'ADP', 'Fantasy Average Per Game'])
         dfs_list.append(new_df)
     # Create single df containing individual player fantasy data
     combined_fantasy_data_df = pd.concat(dfs_list)
-
     return combined_fantasy_data_df
 
 def create_active_players_df():

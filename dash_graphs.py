@@ -14,7 +14,8 @@ combined_data = init_dataframe(philly)
 x_value = "E_DEF_RATING"
 y_value = "DEFLECTIONS"
 nba_fig = px.scatter(combined_data, x=x_value, y=y_value, size='W_PCT', color='PLAYER_NAME')
-create_fantasy_df()
+fantasy_df = create_fantasy_df()
+fantasy_fig = px.scatter(fantasy_df, x='ADP', y='Fantasy Average Per Game')
 
 # Create figure controls.
 controls = dbc.Card(
@@ -72,6 +73,9 @@ app.layout = dbc.Container(
                 dbc.Col(dcc.Graph(id='nba-scatter-plot', figure=nba_fig), md=8),
             ],
             align="center",
+        ),
+        dbc.Row(
+            [dbc.Col(dcc.Graph(id='fantasy-adp-plot', figure=fantasy_fig))]
         )
     ],
     fluid=True,
