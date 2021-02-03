@@ -5,7 +5,8 @@ from nba_api.stats.endpoints import (commonplayerinfo,
                                      teamplayerdashboard,
                                      teaminfocommon,
                                      playerestimatedmetrics,
-                                     playerfantasyprofile)
+                                     playerfantasyprofile,
+                                     fantasywidget)
 from nba_api.stats.static import teams, players
 from pandas import DataFrame
 import pandas as pd
@@ -45,25 +46,29 @@ def create_fantasy_df():
     total_fantasy_players = adp_df['Player']
     player_id_df = create_active_players_df()
     print('size', player_id_df.size)
+    fantasy_data_df = fantasywidget.FantasyWidget().get_data_frames()[0]
     dfs_list = []
 
     for index, row in player_id_df.iterrows():
         player = row['Player']
         print(index)
         pid = row['id']
+
+        # Continue if we don't have ADP data for this player.
+        if not adp_df['Player'].str.contains(player).sum():
+            continue
         player_df = adp_df[adp_df['Player'].str.contains(player)]
         player_adp = player_df['Avg Pos']
 
-        fantasy_df = playerfantasyprofile.PlayerFantasyProfile(player_id=pid).get_data_frames()[0]  # Return the 'Overall' df
-        fantasy_df['Player'] = player
-        fantasy_df['ADP'] = player_adp
-        dfs_list.append(fantasy_df[['Player', 'ADP', 'NBA_FANTASY_PTS']])
+        player_fantasy_data = fantasy_data_df.loc[fantasy_data_df['PLAYER_ID'] == pid].copy()
+        fantasy_avgs = player_fantasy_data['NBA_FANTASY_PTS']
+
+        new_df = DataFrame(data=[[player, player_adp, fantasy_avgs]], columns=['Player', 'ADP', 'Fantasy Average Per Game'])
+        dfs_list.append(new_df)
     # Create single df containing individual player fantasy data
-    combined_fantasy_data_df = pd.concat(df_list)
-    print(combined_fantasy_data_df)
-    # Merge on player name
-    #merged_df = pd.merge(adp_df, combined_fantasy_data_df, on='Player')
-    return
+    combined_fantasy_data_df = pd.concat(dfs_list)
+
+    return combined_fantasy_data_df
 
 def create_active_players_df():
     all_players = players.get_active_players()
