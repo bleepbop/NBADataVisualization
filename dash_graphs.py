@@ -21,8 +21,9 @@ fantasy_fig = px.scatter(fantasy_df,
                          labels={
                              "Player": "Player Name",
                              "ADP": "Average Draft Position",
-                             "Fantasy Average Per Game": "Average Fantasy Points/Game"
-                         },)
+                             "Fantasy Average Per Game": "Average Fantasy Points Per Game"
+                         },
+                         hover_name="Player")
 
 # Create figure controls.
 controls = dbc.Card(
@@ -81,6 +82,9 @@ app.layout = dbc.Container(
             ],
             align="center",
         ),
+        html.Hr(),
+        html.H3(children='Fantasy Value per ADP', style={'textAlign': 'center'}),
+        html.Hr(),
         dbc.Row(
             [dbc.Col(dcc.Graph(id='fantasy-adp-plot', figure=fantasy_fig))]
         )
