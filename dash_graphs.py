@@ -1,9 +1,11 @@
 import dash
 import dash_core_components as dcc
 import dash_html_components as html
-from dash.dependencies import Input, Output
-from data_init import *
 import dash_bootstrap_components as dbc
+from dash.dependencies import Input, Output
+import plotly.express as px
+
+from data_init import *
 
 NBA_TEAMS = get_teams()
 # Initial team will be Philly

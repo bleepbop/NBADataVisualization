@@ -1,19 +1,12 @@
-from nba_api.stats.endpoints import (commonplayerinfo,
-                                     teamplayeronoffdetails,
-                                     leaguehustlestatsplayerleaders,
+from nba_api.stats.endpoints import (teamplayeronoffdetails,
                                      leaguehustlestatsplayer,
                                      teamplayerdashboard,
-                                     teaminfocommon,
                                      playerestimatedmetrics,
-                                     playerfantasyprofile,
                                      fantasywidget)
 from nba_api.stats.static import teams, players
-from pandas import DataFrame
 import pandas as pd
-import plotly.graph_objects as go
-import plotly.express as px
-import re
-from pprint import pp
+from pandas import DataFrame
+
 
 columns_dict = {"Contested Shots": "CONTESTED_SHOTS",
                 "Contested 2 Pt Shots": "CONTESTED_SHOTS_2PT",
