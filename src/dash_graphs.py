@@ -67,6 +67,23 @@ controls = dbc.Card(
     body=True
 )
 
+search_controls = dbc.Card(
+    [
+        dbc.FormGroup(
+            [
+                dbc.Label('Enter Player'),
+                dcc.Dropdown(
+                    id="input-fantasy-player",
+                    options=[{'label': player, 'value': player} for player in fantasy_df['Player']],
+                    placeholder="Insert player name",
+                    persistence=True
+                ),
+            ]
+        ),
+    ],
+    body=True
+)
+
 # Create the app
 app = dash.Dash(
     external_stylesheets=[dbc.themes.BOOTSTRAP]
@@ -88,7 +105,10 @@ app.layout = dbc.Container(
         html.Hr(),
         html.H3(children='Fantasy Value per ADP', style={'textAlign': 'center'}),
         dbc.Row(
-            [dbc.Col(dcc.Graph(id='fantasy-adp-plot', figure=fantasy_fig))]
+            [
+                dbc.Col(search_controls, md=4),
+                dbc.Col(dcc.Graph(id='fantasy-adp-plot', figure=fantasy_fig))
+            ]
         )
     ],
     fluid=True,
@@ -104,5 +124,10 @@ app.layout = dbc.Container(
 def update_scatter(input_x_value, input_y_value, team_id):
     dataset = init_dataframe(team_id)
     return px.scatter(dataset, x=input_x_value, y=input_y_value, size='W_PCT', color='PLAYER_NAME')
-
+'''
+@app.callback(
+    Output(component_id='', component_property='')
+    Input(component_id='input-fantasy-player', component_property='value')
+)
+'''
 app.run_server(debug=True, use_reloader=True)

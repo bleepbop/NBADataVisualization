@@ -1,5 +1,7 @@
+beautifulsoup4
 dash
 dash-bootstrap-components
+lxml
 nba_api
 pandas
 plotly
