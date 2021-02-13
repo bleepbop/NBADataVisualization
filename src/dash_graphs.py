@@ -37,7 +37,8 @@ controls = dbc.Card(
                     id="dropdown-nba-team",
                     options=[{'label': team['full_name'], 'value': team['id']} for team in NBA_TEAMS],
                     placeholder="Insert team name",
-                    persistence=True
+                    persistence=True,
+                    style={'color': 'black'}
                 ),
             ]
         ),
@@ -45,54 +46,60 @@ controls = dbc.Card(
             [
                 dbc.Label('X Variable'),
                 dcc.Dropdown(
-                        id='x-coord-dropdown',
-                        options=[{'label': i, 'value': columns_dict[i]} for i in columns_dict],
-                        placeholder='Select a X Coordinate Parameter',
-                        persistence=True
-                        )
+                    id='x-coord-dropdown',
+                    options=[{'label': i, 'value': columns_dict[i]} for i in columns_dict],
+                    placeholder='Select a X Coordinate Parameter',
+                    persistence=True,
+                    style={'color': 'black'}
+                )
             ]
         ),
         dbc.FormGroup(
             [
                 dbc.Label('Y Variable'),
                 dcc.Dropdown(
-                        id='y-coord-dropdown',
-                        options=[{'label': i, 'value': impact_stats_dict[i]} for i in impact_stats_dict],
-                        placeholder='Select a Y Coordinate Parameter',
-                        persistence=True
-                        )
+                    id='y-coord-dropdown',
+                    options=[{'label': i, 'value': impact_stats_dict[i]} for i in impact_stats_dict],
+                    placeholder='Select a Y Coordinate Parameter',
+                    persistence=True,
+                    style={'color': 'black'}
+                )
             ]
         )
     ],
-    body=True
+    body=True,
+    color='primary'
 )
 
 search_controls = dbc.Card(
     [
         dbc.FormGroup(
             [
-                dbc.Label('Enter Player'),
+                dbc.Label('Highlight Player'),
                 dcc.Dropdown(
                     id="input-fantasy-player",
                     options=[{'label': player, 'value': player} for player in fantasy_df['Player']],
                     placeholder="Insert player name",
-                    persistence=True
+                    persistence=True,
+                    multi=True,
+                    style={'color': 'black'}
                 ),
             ]
         ),
     ],
-    body=True
+    body=True,
+    color='primary'
 )
 
 # Create the app
 app = dash.Dash(
-    external_stylesheets=[dbc.themes.BOOTSTRAP]
+    external_stylesheets=[dbc.themes.DARKLY]
 )
 
 # Create the general app layout
 app.layout = dbc.Container(
     children=[
-        html.H1(children='NBA Data Visualizer', style={'textAlign': 'center'}),
+        html.H1(children='NBA Data Visualizer', style={'textAlign': 'center', 'background-color':'primary'}),
         html.Hr(),
         html.H3(children='Hustle Stats Plots', style={'textAlign': 'center'}),
         dbc.Row(
@@ -124,10 +131,27 @@ app.layout = dbc.Container(
 def update_scatter(input_x_value, input_y_value, team_id):
     dataset = init_dataframe(team_id)
     return px.scatter(dataset, x=input_x_value, y=input_y_value, size='W_PCT', color='PLAYER_NAME')
-'''
+
 @app.callback(
-    Output(component_id='', component_property='')
+    Output(component_id='fantasy-adp-plot', component_property='figure'),
     Input(component_id='input-fantasy-player', component_property='value')
 )
-'''
+def update_traces(data):
+    fantasy_fig = px.scatter(fantasy_df,
+                             x='ADP',
+                             y='Fantasy Average Per Game',
+                             labels={
+                                 "Player": "Player Name",
+                                 "ADP": "Average Draft Position",
+                                 "Fantasy Average Per Game": "Average Fantasy Points Per Game"
+                             },
+                             hover_name="Player")
+    if len(data) == 0:
+        return fantasy_fig
+    player_data = []
+    for player in data:
+        player_data.append(fantasy_df.loc[fantasy_df['Player'] == player].copy())
+    trace_data = pd.concat(player_data)
+    fantasy_fig.add_scatter(x=trace_data['ADP'], y=trace_data['Fantasy Average Per Game'], mode="markers", text=trace_data["Player"], cliponaxis=True)
+    return fantasy_fig
 app.run_server(debug=True, use_reloader=True)
