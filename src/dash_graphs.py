@@ -116,6 +116,14 @@ app.layout = dbc.Container(
                 dbc.Col(search_controls, md=4),
                 dbc.Col(dcc.Graph(id='fantasy-adp-plot', figure=fantasy_fig))
             ]
+        ),
+        html.Hr(),
+        dbc.Row(
+            [
+                dbc.Col(
+                    dbc.Table(id='selected-players-table'),
+                )
+            ]
         )
     ],
     fluid=True,
@@ -154,4 +162,19 @@ def update_traces(data):
     trace_data = pd.concat(player_data)
     fantasy_fig.add_scatter(x=trace_data['ADP'], y=trace_data['Fantasy Average Per Game'], mode="markers", text=[{'Player': row["Player"], 'ADP': row["ADP"], 'Avg Fantasy PPG': row['Fantasy Average Per Game']} for index, row in trace_data.iterrows()], cliponaxis=True)
     return fantasy_fig
+
+@app.callback(
+    Output(component_id='selected-players-table', component_property='children'),
+    Input(component_id='input-fantasy-player', component_property='value')
+)
+def update_table(data):
+    if len(data) == 0:
+        return
+    player_data = []
+    for player in data:
+        player_data.append(fantasy_df.loc[fantasy_df['Player'] == player].copy())
+    trace_data = pd.concat(player_data)
+    table = dbc.Table.from_dataframe(trace_data, striped=True, bordered=True, hover=True)
+    return table
+
 app.run_server(debug=True, use_reloader=True)
