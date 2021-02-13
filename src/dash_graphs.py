@@ -137,7 +137,7 @@ app.layout = dbc.Container(
             [
                 dbc.Col(
                     dbc.Table(id='selected-players-table'),
-                    width={"size": 7, "offset": 3}
+                    width={"size": 8, "offset": 2}
                 )
             ]
         )
@@ -176,7 +176,7 @@ def update_traces(data):
     for player in data:
         player_data.append(fantasy_df.loc[fantasy_df['Player'] == player].copy())
     trace_data = pd.concat(player_data)
-    fantasy_fig.add_scatter(x=trace_data['ADP'], y=trace_data['Fantasy Average Per Game'], mode="markers", text=[{'Player': row["Player"], 'ADP': row["ADP"], 'Avg Fantasy PPG': row['Fantasy Average Per Game']} for index, row in trace_data.iterrows()], cliponaxis=True)
+    fantasy_fig.add_scatter(x=trace_data['ADP'], y=trace_data['Fantasy Average Per Game'], mode="markers", text=['<b>{}</b><br><br>ADP: {}<br>Avg Fantasy PPG: {}'.format(str(row["Player"]), str(row["ADP"]), str(row['Fantasy Average Per Game'])) for index, row in trace_data.iterrows()], cliponaxis=True, name='Selected Players', meta='')
     return fantasy_fig
 
 @app.callback(
