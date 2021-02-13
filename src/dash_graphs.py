@@ -152,6 +152,6 @@ def update_traces(data):
     for player in data:
         player_data.append(fantasy_df.loc[fantasy_df['Player'] == player].copy())
     trace_data = pd.concat(player_data)
-    fantasy_fig.add_scatter(x=trace_data['ADP'], y=trace_data['Fantasy Average Per Game'], mode="markers", text=trace_data["Player"], cliponaxis=True)
+    fantasy_fig.add_scatter(x=trace_data['ADP'], y=trace_data['Fantasy Average Per Game'], mode="markers", text=[{'Player': row["Player"], 'ADP': row["ADP"], 'Avg Fantasy PPG': row['Fantasy Average Per Game']} for index, row in trace_data.iterrows()], cliponaxis=True)
     return fantasy_fig
 app.run_server(debug=True, use_reloader=True)
