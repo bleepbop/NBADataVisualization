@@ -44,7 +44,7 @@ controls = dbc.Card(
         ),
         dbc.FormGroup(
             [
-                dbc.Label('X Variable'),
+                dbc.Label('X Axis'),
                 dcc.Dropdown(
                     id='x-coord-dropdown',
                     options=[{'label': i, 'value': columns_dict[i]} for i in columns_dict],
@@ -56,7 +56,7 @@ controls = dbc.Card(
         ),
         dbc.FormGroup(
             [
-                dbc.Label('Y Variable'),
+                dbc.Label('Y Axis'),
                 dcc.Dropdown(
                     id='y-coord-dropdown',
                     options=[{'label': i, 'value': impact_stats_dict[i]} for i in impact_stats_dict],
@@ -100,28 +100,44 @@ app = dash.Dash(
 app.layout = dbc.Container(
     children=[
         html.H1(children='NBA Data Visualizer', style={'textAlign': 'center', 'background-color':'primary'}),
+        dbc.NavbarSimple(
+            [
+                dbc.NavItem(dbc.NavLink("Hustle Stats Plot", href="#hustle-stats-plot-header", external_link=True)),
+                dbc.NavItem(dbc.NavLink("Fantasy Dashboard", href="#fantasy-plot-header", external_link=True)),
+            ],
+            brand='Created by bleebop',
+            brand_href='https://github.com/bleepbop?tab=repositories',
+            color="primary",
+            dark=True,
+        ),
         html.Hr(),
-        html.H3(children='Hustle Stats Plots', style={'textAlign': 'center'}),
+        html.Hr(),
+        html.Hr(),
+        html.H3(children='Hustle Stats Plots', style={'textAlign': 'center'}, id='hustle-stats-plot-header'),
         dbc.Row(
             [
                 dbc.Col(controls, md=4),
                 dbc.Col(dcc.Graph(id='nba-scatter-plot', figure=nba_fig), md=8),
             ],
-            align="center",
+            align="start",
         ),
         html.Hr(),
-        html.H3(children='Fantasy Value per ADP', style={'textAlign': 'center'}),
+        html.Hr(),
+        html.Hr(),
+        html.H3(children='Fantasy Value per ADP', style={'textAlign': 'center'}, id='fantasy-plot-header'),
         dbc.Row(
             [
                 dbc.Col(search_controls, md=4),
                 dbc.Col(dcc.Graph(id='fantasy-adp-plot', figure=fantasy_fig))
-            ]
+            ],
+            align="start",
         ),
         html.Hr(),
         dbc.Row(
             [
                 dbc.Col(
                     dbc.Table(id='selected-players-table'),
+                    width={"size": 7, "offset": 3}
                 )
             ]
         )
