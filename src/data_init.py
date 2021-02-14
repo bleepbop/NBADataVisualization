@@ -6,6 +6,8 @@ from nba_api.stats.endpoints import (teamplayeronoffdetails,
 from nba_api.stats.static import teams, players
 import pandas as pd
 from pandas import DataFrame
+from math import floor
+from statistics import median
 
 
 columns_dict = {"Contested Shots": "CONTESTED_SHOTS",
@@ -26,6 +28,8 @@ impact_stats_dict = {"Offensive Rating": 'E_OFF_RATING',
                      "Defensive Rating": 'E_DEF_RATING',
                      "Net Rating": 'E_NET_RATING',
                      "Win Percent": 'W_PCT'}
+
+fantasy_pts_by_round = {i: [] for i in range(1, 17)}
 
 def get_fantasy_adp_df():
     # All credit for ADP goes to CBS Sports.
@@ -63,6 +67,8 @@ def create_fantasy_df():
                 fantasy_avgs = fantasy_avgs.values
         fantasy_avgs = float(fantasy_avgs)
         new_df = DataFrame(data=[[player, player_adp, fantasy_avgs]], columns=['Player', 'ADP', 'Fantasy Average Per Game'])
+        round_drafted = 1 if round(player_adp) / 10 <= 1 else floor(round(player_adp) / 10)
+        fantasy_pts_by_round[round_drafted].append(fantasy_avgs)
         dfs_list.append(new_df)
     # Create single df containing individual player fantasy data
     combined_fantasy_data_df = pd.concat(dfs_list)
@@ -120,3 +126,10 @@ def init_dataframe(team_id):
     # Merge dataframes on player name.
     merged_df = pd.merge(team_hustle_df, player_metrics_df, on='PLAYER_ID')
     return merged_df
+
+def find_round_avg_fantasy_pts():
+    median_round_pts = {}
+    for round in fantasy_pts_by_round:
+        median_val = median(fantasy_pts_by_round[round])
+        median_round_pts[round] = median_val
+    return median_round_pts

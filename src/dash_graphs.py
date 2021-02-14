@@ -26,6 +26,7 @@ fantasy_fig = px.scatter(fantasy_df,
                              "Fantasy Average Per Game": "Average Fantasy Points Per Game"
                          },
                          hover_name="Player")
+median_fantasy_pts_per_round = find_round_avg_fantasy_pts()
 
 # Create figure controls.
 controls = dbc.Card(
@@ -137,7 +138,7 @@ app.layout = dbc.Container(
             [
                 dbc.Col(
                     dbc.Table(id='selected-players-table'),
-                    width={"size": 8, "offset": 2}
+                    width={"size": 8, "offset": 4}
                 )
             ]
         )
@@ -188,7 +189,11 @@ def update_table(data):
         return
     player_data = []
     for player in data:
-        player_data.append(fantasy_df.loc[fantasy_df['Player'] == player].copy())
+        df = fantasy_df.loc[fantasy_df['Player'] == player].copy()
+        avg_round = 1 if round(df['ADP'].values[0]) / 10 <= 1 else round(df['ADP'].values[0] / 10)
+        round_median = median_fantasy_pts_per_round[avg_round]
+        df['Draft Round Median Fantasy PPG'] = round_median
+        player_data.append(df)
     trace_data = pd.concat(player_data)
     table = dbc.Table.from_dataframe(trace_data, striped=True, bordered=True, hover=True)
     return table
