@@ -8,11 +8,13 @@ There are two ways to run the app. First, navigate to the project directory.
 Then enter the following commands:
 
   With Python3:
+
   `pip install -r requirements.txt`
 
   `python3 src/dash_graphs.py`
   
   With Docker:
+
   `docker build -t nba_viz .`
 
   `docker run -dp 8000:8000 nba_viz`
