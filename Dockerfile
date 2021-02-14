@@ -1,8 +1,6 @@
-FROM python:3.8
-RUN useradd -ms /bin/bash user
-USER user
-WORKDIR /home/user
+FROM python:3
+WORKDIR /usr/nbaMachineLearning
 COPY requirements.txt .
-RUN pip install -r requirements.txt && rm requirements.txt
-EXPOSE 8050
-ENTRYPOINT [ "python3", "dash_graphs.py"]
+COPY /src .
+RUN pip3 install -r requirements.txt
+CMD [ "python", "dash_graphs.py"]

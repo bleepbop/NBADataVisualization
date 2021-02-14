@@ -198,4 +198,4 @@ def update_table(data):
     table = dbc.Table.from_dataframe(trace_data, striped=True, bordered=True, hover=True)
     return table
 
-app.run_server(debug=True, use_reloader=True)
+app.run_server(host='0.0.0.0', port=8000, debug=True)
