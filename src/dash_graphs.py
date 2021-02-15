@@ -154,6 +154,10 @@ app.layout = dbc.Container(
 )
 # This callback method takes in control parameters and updates the plot accordingly.
 def update_scatter(input_x_value, input_y_value, team_id):
+    if input_x_value == None and input_y_value == None and team_id == None:
+        input_x_value = "E_DEF_RATING"
+        input_y_value = "DEFLECTIONS"
+        team_id = philly
     dataset = init_dataframe(team_id)
     return px.scatter(dataset, x=input_x_value, y=input_y_value, size='W_PCT', color='PLAYER_NAME')
 
@@ -171,7 +175,7 @@ def update_traces(data):
                                  "Fantasy Average Per Game": "Average Fantasy Points Per Game"
                              },
                              hover_name="Player")
-    if len(data) == 0:
+    if data == None or len(data) == 0:
         return fantasy_fig
     player_data = []
     for player in data:
@@ -185,7 +189,7 @@ def update_traces(data):
     Input(component_id='input-fantasy-player', component_property='value')
 )
 def update_table(data):
-    if len(data) == 0:
+    if data == None or len(data) == 0:
         return
     player_data = []
     for player in data:
