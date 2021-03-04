@@ -1,6 +1,7 @@
 beautifulsoup4
 dash
 dash-bootstrap-components
+espn_api
 lxml
 nba_api
 pandas

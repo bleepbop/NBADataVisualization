@@ -3,6 +3,7 @@ import dash_core_components as dcc
 import dash_html_components as html
 import dash_bootstrap_components as dbc
 from dash.dependencies import Input, Output
+from espn_api.basketball import League
 import plotly.express as px
 
 from data_init import *
@@ -92,6 +93,29 @@ search_controls = dbc.Card(
     color='primary'
 )
 
+fantasy_hub_controls = dbc.Card(
+    [
+        dbc.FormGroup(
+            [
+                dbc.Label('ESPN League Input'),
+                html.Hr(),
+                dcc.Input(
+                    id="input_league_id",
+                    type="number",
+                    placeholder="Enter ESPN League ID"
+                ),
+                dcc.Input(
+                    id="input_league_year",
+                    type="number",
+                    placeholder="Enter Fantasy League Year"
+                )
+            ]
+        ),
+    ],
+    body=True,
+    color='primary'
+)
+
 # Create the app
 app = dash.Dash(
     external_stylesheets=[dbc.themes.DARKLY]
@@ -141,7 +165,22 @@ app.layout = dbc.Container(
                     width={"size": 8, "offset": 4}
                 )
             ]
-        )
+        ),
+        html.Hr(),
+        html.Hr(),
+        html.Hr(),
+        html.H3(children='Fantasy Hub', style={'textAlign': 'center'}, id='fantasy-hub'),
+        html.Hr(),
+        dbc.Row(
+            [
+                dbc.Col(children=[fantasy_hub_controls, dbc.Table(id='standings-table')], md=4),
+                dbc.Col(
+                    width={"size": 8, "offset": 4}
+                )
+            ],
+            align="start",
+        ),
+
     ],
     fluid=True,
 )
@@ -200,6 +239,21 @@ def update_table(data):
         player_data.append(df)
     trace_data = pd.concat(player_data)
     table = dbc.Table.from_dataframe(trace_data, striped=True, bordered=True, hover=True)
+    return table
+
+@app.callback(
+    Output(component_id='standings-table', component_property='children'),
+    Input(component_id='input_league_id', component_property='value'),
+    Input(component_id='input_league_year', component_property='value'),
+)
+def init_fantasy_league(league_id, league_year):
+    if league_id == None or league_year == None:
+        return
+    league = League(league_id, league_year)
+    teams = {team.team_id: team for team in league.teams}
+    body = [html.Tr([html.Td(team.team_name)]) for team in league.standings()]
+    body = [html.Thead(html.Tr([html.Th("League Standings")]))] + body
+    table = dbc.Table(body)
     return table
 
 app.run_server(host='0.0.0.0', port=8000, debug=True)
