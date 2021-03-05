@@ -251,8 +251,12 @@ def init_fantasy_league(league_id, league_year):
         return
     league = League(league_id, league_year)
     teams = {team.team_id: team for team in league.teams}
-    body = [html.Tr([html.Td(team.team_name)]) for team in league.standings()]
-    body = [html.Thead(html.Tr([html.Th("League Standings")]))] + body
+    body = [html.Thead(html.Tr([html.Th("League Standings")]))]
+    standings_index = 1
+    for team in league.standings():
+        row = html.Tr([html.Td(standings_index), html.Td(team.team_name)])
+        standings_index += 1
+        body.append(row)
     table = dbc.Table(body)
     return table
 
