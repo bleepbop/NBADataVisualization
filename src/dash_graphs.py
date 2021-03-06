@@ -98,7 +98,6 @@ fantasy_hub_controls = dbc.Card(
         dbc.FormGroup(
             [
                 dbc.Label('ESPN League Input'),
-                html.Hr(),
                 dcc.Input(
                     id="input_league_id",
                     type="number",
@@ -174,9 +173,7 @@ app.layout = dbc.Container(
         dbc.Row(
             [
                 dbc.Col(children=[fantasy_hub_controls, dbc.Table(id='standings-table')], md=4),
-                dbc.Col(
-                    width={"size": 8, "offset": 4}
-                )
+                dbc.Col(dcc.Graph(id='fantasy-team-scoring', figure=nba_fig), width={"size": 8, "offset": 4})
             ],
             align="start",
         ),
@@ -251,6 +248,8 @@ def init_fantasy_league(league_id, league_year):
         return
     league = League(league_id, league_year)
     teams = {team.team_id: team for team in league.teams}
+
+    # Create standings table
     body = [html.Thead(html.Tr([html.Th("League Standings")]))]
     standings_index = 1
     for team in league.standings():
@@ -259,5 +258,40 @@ def init_fantasy_league(league_id, league_year):
         body.append(row)
     table = dbc.Table(body)
     return table
+
+@app.callback(
+    Output(component_id='fantasy-team-scoring', component_property='figure'),
+    Input(component_id='input_league_id', component_property='value'),
+    Input(component_id='input_league_year', component_property='value'),
+)
+def init_fantasy_team_scoring(league_id, league_year):
+    if league_id == None or league_year == None:
+        return
+    league = League(league_id, league_year)
+    teams = {team.team_id: team for team in league.teams}
+    team_scoring = {}
+
+    # Create standings table
+    body = [html.Thead(html.Tr([html.Th("League Standings")]))]
+    standings_index = 1
+    for team in league.standings():
+        team_id = team.team_id
+        team_scoring[team.team_name] = {'scoring': [], 'wins': []}
+        weekly_metrics = {'Week': [], 'Score': []}
+        week_idx = 1
+        for matchup in team.schedule:
+            home_away_status = 'HOME' if matchup.home_team == team_id else 'AWAY'
+            weekly_score = 0
+            if home_away_status == 'HOME':
+                weekly_score = matchup.home_final_score
+            else:
+                weekly_score = matchup.away_final_score
+            team_scoring[team.team_name]['scoring'].append(weekly_score)
+            win_status = True if matchup.winner == team.team_name else False
+            team_scoring[team.team_name]['wins'].append(win_status)
+            weekly_metrics['Week'].append(week_idx)
+            weekly_metrics['Score'].append(weekly_score)
+    scoring_df = pd.DataFrame.from_dict(team_scoring)
+    #scoring_scatter = px.scatter(scoring_df, , color='PLAYER_NAME')
 
 app.run_server(host='0.0.0.0', port=8000, debug=True)
