@@ -31,6 +31,7 @@ impact_stats_dict = {"Offensive Rating": 'E_OFF_RATING',
 
 fantasy_pts_by_round = {i: [] for i in range(1, 17)}
 
+
 def get_fantasy_adp_df():
     # All credit for ADP goes to CBS Sports.
     url = 'https://www.cbssports.com/fantasy/basketball/draft/averages/'
@@ -38,9 +39,9 @@ def get_fantasy_adp_df():
     fantasy_adp_df = df[['Player', 'Avg Pos']]
     return fantasy_adp_df
 
+
 def create_fantasy_df():
     adp_df = get_fantasy_adp_df()
-    total_fantasy_players = adp_df['Player']
     player_id_df = create_active_players_df()
     fantasy_data_df = fantasywidget.FantasyWidget().get_data_frames()[0]
     dfs_list = []
@@ -66,7 +67,8 @@ def create_fantasy_df():
             else:
                 fantasy_avgs = fantasy_avgs.values
         fantasy_avgs = float(fantasy_avgs)
-        new_df = DataFrame(data=[[player, player_adp, fantasy_avgs]], columns=['Player', 'ADP', 'Fantasy Average Per Game'])
+        new_df = DataFrame(data=[[player, player_adp, fantasy_avgs]],
+                           columns=['Player', 'ADP', 'Fantasy Average Per Game'])
         round_drafted = 1 if round(player_adp) / 10 <= 1 else floor(round(player_adp) / 10)
         fantasy_pts_by_round[round_drafted].append(fantasy_avgs)
         dfs_list.append(new_df)
@@ -74,16 +76,19 @@ def create_fantasy_df():
     combined_fantasy_data_df = pd.concat(dfs_list)
     return combined_fantasy_data_df
 
+
 def create_active_players_df():
     all_players = players.get_active_players()
     df = pd.DataFrame(all_players)
-    df.rename(columns = {'full_name':'Player'}, inplace = True)
+    df.rename(columns={'full_name': 'Player'}, inplace=True)
     pid_df = df[['id', 'Player']]
     return pid_df
+
 
 def get_teams():
     team_info = teams.get_teams()
     return team_info
+
 
 def init_dataframe(team_id):
     metrics = playerestimatedmetrics.PlayerEstimatedMetrics().get_data_frames()[0]
@@ -119,13 +124,19 @@ def init_dataframe(team_id):
             player_df[col] = player_df[col] / games_played
         df_list.append(player_df)
         player_metrics_df = metrics.loc[metrics['PLAYER_ID'] == player_id]
-        team_metrics.append(player_metrics_df[["PLAYER_ID", "E_OFF_RATING", "E_DEF_RATING", "E_NET_RATING", "W_PCT"]])
+        team_metrics.append(player_metrics_df[["PLAYER_ID",
+                                               "E_OFF_RATING",
+                                               "E_DEF_RATING",
+                                               "E_NET_RATING",
+                                               "W_PCT"
+                                               ]])
 
     team_hustle_df = pd.concat(df_list)
     player_metrics_df = pd.concat(team_metrics)
     # Merge dataframes on player name.
     merged_df = pd.merge(team_hustle_df, player_metrics_df, on='PLAYER_ID')
     return merged_df
+
 
 def find_round_avg_fantasy_pts():
     median_round_pts = {}
