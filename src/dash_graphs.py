@@ -5,6 +5,7 @@ import dash_bootstrap_components as dbc
 from dash.dependencies import Input, Output
 from espn_api.basketball import League
 import plotly.express as px
+import plotly.graph_objects as go
 
 from data_init import *
 
@@ -173,7 +174,7 @@ app.layout = dbc.Container(
         dbc.Row(
             [
                 dbc.Col(children=[fantasy_hub_controls, dbc.Table(id='standings-table')], md=4),
-                dbc.Col(dcc.Graph(id='fantasy-team-scoring', figure=nba_fig), width={"size": 8, "offset": 4})
+                dbc.Col(id='fantasy-team-scoring', width={"size": 8, "offset": 4})
             ],
             align="start",
         ),
@@ -260,7 +261,7 @@ def init_fantasy_league(league_id, league_year):
     return table
 
 @app.callback(
-    Output(component_id='fantasy-team-scoring', component_property='figure'),
+    Output(component_id='fantasy-team-scoring', component_property='children'),
     Input(component_id='input_league_id', component_property='value'),
     Input(component_id='input_league_year', component_property='value'),
 )
@@ -271,9 +272,8 @@ def init_fantasy_team_scoring(league_id, league_year):
     teams = {team.team_id: team for team in league.teams}
     team_scoring = {}
 
-    # Create standings table
-    body = [html.Thead(html.Tr([html.Th("League Standings")]))]
-    standings_index = 1
+    fig = go.Figure()
+
     for team in league.standings():
         team_id = team.team_id
         team_scoring[team.team_name] = {'scoring': [], 'wins': []}
@@ -291,7 +291,10 @@ def init_fantasy_team_scoring(league_id, league_year):
             team_scoring[team.team_name]['wins'].append(win_status)
             weekly_metrics['Week'].append(week_idx)
             weekly_metrics['Score'].append(weekly_score)
+            week_idx += 1
+        fig.add_trace(go.Scatter(x=weekly_metrics['Week'], y=weekly_metrics['Score'],
+                      name=team.team_name))
     scoring_df = pd.DataFrame.from_dict(team_scoring)
-    #scoring_scatter = px.scatter(scoring_df, , color='PLAYER_NAME')
+    return dcc.Graph(figure=fig)
 
 app.run_server(host='0.0.0.0', port=8000, debug=True)
