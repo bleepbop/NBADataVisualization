@@ -99,15 +99,19 @@ fantasy_hub_controls = dbc.Card(
         dbc.FormGroup(
             [
                 dbc.Label('ESPN League Input'),
+                html.Br(),
                 dcc.Input(
                     id="input_league_id",
                     type="number",
-                    placeholder="Enter ESPN League ID"
+                    placeholder="ESPN League ID",
+                    persistence=True
                 ),
+                html.Br(),
                 dcc.Input(
                     id="input_league_year",
                     type="number",
-                    placeholder="Enter Fantasy League Year"
+                    placeholder="Fantasy League Year",
+                    persistence=True
                 )
             ]
         ),
@@ -128,7 +132,8 @@ app.layout = dbc.Container(
         dbc.NavbarSimple(
             [
                 dbc.NavItem(dbc.NavLink("Hustle Stats Plot", href="#hustle-stats-plot-header", external_link=True)),
-                dbc.NavItem(dbc.NavLink("Fantasy Dashboard", href="#fantasy-plot-header", external_link=True)),
+                dbc.NavItem(dbc.NavLink("Fantasy Tools", href="#fantasy-plot-header", external_link=True)),
+                dbc.NavItem(dbc.NavLink("ESPN Fantasy League Dashboard", href="#fantasy-hub", external_link=True)),
             ],
             brand='Created by bleebop',
             brand_href='https://github.com/bleepbop?tab=repositories',
@@ -146,6 +151,9 @@ app.layout = dbc.Container(
             ],
             align="start",
         ),
+        html.Hr(),
+        html.Hr(),
+        html.Hr(),
         html.Hr(),
         html.Hr(),
         html.Hr(),
@@ -169,12 +177,15 @@ app.layout = dbc.Container(
         html.Hr(),
         html.Hr(),
         html.Hr(),
-        html.H3(children='Fantasy Hub', style={'textAlign': 'center'}, id='fantasy-hub'),
+        html.Hr(),
+        html.Hr(),
+        html.Hr(),
+        html.H3(children='ESPN Fantasy League Hub', style={'textAlign': 'center'}, id='fantasy-hub'),
         html.Hr(),
         dbc.Row(
             [
                 dbc.Col(children=[fantasy_hub_controls, dbc.Table(id='standings-table')], md=4),
-                dbc.Col(id='fantasy-team-scoring', width={"size": 8, "offset": 4})
+                dbc.Col(id='fantasy-team-scoring')
             ],
             align="start",
         ),
