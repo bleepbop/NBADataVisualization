@@ -189,6 +189,14 @@ app.layout = dbc.Container(
             ],
             align="start",
         ),
+        dbc.Row(
+            [
+                dbc.Col(id='fantasy-league-team-comparison'),
+                dbc.Col()
+            ],
+            align="start"
+
+        )
 
     ],
     fluid=True,
@@ -267,7 +275,6 @@ def init_fantasy_league(league_id, league_year):
     if league_id == None or league_year == None:
         return
     league = League(league_id, league_year)
-    teams = {team.team_id: team for team in league.teams}
 
     # Create standings table
     body = [html.Thead(html.Tr([html.Th("League Standings")]))]
@@ -281,6 +288,7 @@ def init_fantasy_league(league_id, league_year):
 
 @app.callback(
     Output(component_id='fantasy-team-scoring', component_property='children'),
+    Output(component_id='fantasy-league-team-comparison', component_property='children'),
     Input(component_id='input_league_id', component_property='value'),
     Input(component_id='input_league_year', component_property='value'),
 )
@@ -291,29 +299,47 @@ def init_fantasy_team_scoring(league_id, league_year):
     teams = {team.team_id: team for team in league.teams}
     team_scoring = {}
 
-    fig = go.Figure()
+    weekly_scoring_figure = go.Figure(layout_title_text='Fantasy Team Weekly Performance')
+    team_data = []
 
     for team in league.standings():
         team_id = team.team_id
         team_scoring[team.team_name] = {'scoring': [], 'wins': []}
         weekly_metrics = {'Week': [], 'Score': []}
         week_idx = 1
+        points_for = 0
+        points_against = 0
         for matchup in team.schedule:
-            home_away_status = 'HOME' if matchup.home_team == team_id else 'AWAY'
+            home_status = True if matchup.home_team.team_id == team_id else False
             weekly_score = 0
-            if home_away_status == 'HOME':
+            if home_status:
                 weekly_score = matchup.home_final_score
+                points_for += matchup.home_final_score
+                points_against += matchup.away_final_score
             else:
                 weekly_score = matchup.away_final_score
+                points_for += matchup.away_final_score
+                points_against += matchup.home_final_score
             team_scoring[team.team_name]['scoring'].append(weekly_score)
             win_status = True if matchup.winner == team.team_name else False
             team_scoring[team.team_name]['wins'].append(win_status)
             weekly_metrics['Week'].append(week_idx)
             weekly_metrics['Score'].append(weekly_score)
             week_idx += 1
-        fig.add_trace(go.Scatter(x=weekly_metrics['Week'], y=weekly_metrics['Score'],
-                      name=team.team_name))
-    scoring_df = pd.DataFrame.from_dict(team_scoring)
-    return dcc.Graph(figure=fig)
+        weekly_scoring_figure.add_trace(go.Scatter(x=weekly_metrics['Week'],
+                                                   y=weekly_metrics['Score'],
+                                                   name=team.team_name))
+        team_data.append([team.team_name, points_for, points_against])
+    # scoring_df = pd.DataFrame.from_dict(team_scoring)
+    team_comparison_df = pd.DataFrame(team_data, columns=['Team Name', 'Points For', 'Points Against'])
+    team_comparison_plot = px.scatter(team_comparison_df,
+                                      x='Points Against',
+                                      y='Points For',
+                                      hover_name="Team Name",
+                                      size='Points For',
+                                      color='Team Name',
+                                      title='Fantasy Team Comparison')
+
+    return dcc.Graph(figure=weekly_scoring_figure), dcc.Graph(figure=team_comparison_plot)
 
 app.run_server(host='0.0.0.0', port=8000, debug=True)
