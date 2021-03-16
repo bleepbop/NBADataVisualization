@@ -192,7 +192,7 @@ app.layout = dbc.Container(
         dbc.Row(
             [
                 dbc.Col(id='fantasy-league-team-comparison'),
-                dbc.Col()
+                dbc.Col(id='fantasy-league-category-comparison')
             ],
             align="start"
 
@@ -289,6 +289,7 @@ def init_fantasy_league(league_id, league_year):
 @app.callback(
     Output(component_id='fantasy-team-scoring', component_property='children'),
     Output(component_id='fantasy-league-team-comparison', component_property='children'),
+    Output(component_id='fantasy-league-category-comparison', component_property='children'),
     Input(component_id='input_league_id', component_property='value'),
     Input(component_id='input_league_year', component_property='value'),
 )
@@ -319,14 +320,21 @@ def init_fantasy_team_scoring(league_id, league_year):
                 weekly_score = matchup.home_final_score
                 points_for += matchup.home_final_score
                 points_against += matchup.away_final_score
-                for cat in matchup.home_team_cats:
-                    team_categories[cat] += matchup.home_team_cats[cat]['score']
+                if matchup.home_team_cats is not None:
+                    for cat in matchup.home_team_cats:
+                        if len(cat) == 0 or cat is None:
+                            continue
+                        team_categories[cat] += matchup.home_team_cats[cat]['score']
             else:
                 weekly_score = matchup.away_final_score
                 points_for += matchup.away_final_score
                 points_against += matchup.home_final_score
-                for cat in matchup.away_team_cats:
-                    team_categories[cat] += matchup.away_team_cats[cat]['score']
+                if matchup.away_team_cats is not None:
+                    for cat in matchup.away_team_cats:
+                        print(cat)
+                        if len(cat) == 0 or cat is None:
+                            continue
+                        team_categories[cat] += matchup.away_team_cats[cat]['score']
             team_scoring[team.team_name]['scoring'].append(weekly_score)
             win_status = True if matchup.winner == team.team_name else False
             team_scoring[team.team_name]['wins'].append(win_status)
@@ -340,8 +348,9 @@ def init_fantasy_team_scoring(league_id, league_year):
         team_categories['FG%'] = team_categories['FGM'] / team_categories['FGA']
         del team_categories['FGM']
         del team_categories['FGA']
-        team_categories['Team'] = team.team_name
-        category_data.append(team_categories)
+        for cat in team_categories:
+            # Tuple is of form: Team Name - Category Name - Category Value
+            category_data.append((team.team_name, cat, team_categories[cat]))
         weekly_scoring_figure.add_trace(go.Scatter(x=weekly_metrics['Week'],
                                                    y=weekly_metrics['Score'],
                                                    name=team.team_name))
@@ -355,8 +364,9 @@ def init_fantasy_team_scoring(league_id, league_year):
                                       size='Points For',
                                       color='Team Name',
                                       title='Fantasy Team Comparison')
-    category_df = pd.DataFrame(category_data)
+    category_df = pd.DataFrame(category_data, columns=['Team', 'Category', 'Count'])
+    team_category_bargraph = px.bar(category_df, x="Team", y='Count', color="Category", title="Fantasy Team Category Performance")
 
-    return dcc.Graph(figure=weekly_scoring_figure), dcc.Graph(figure=team_comparison_plot)
+    return dcc.Graph(figure=weekly_scoring_figure), dcc.Graph(figure=team_comparison_plot), dcc.Graph(figure=team_category_bargraph)
 
 app.run_server(host='0.0.0.0', port=8000, debug=True)
