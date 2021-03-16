@@ -301,31 +301,47 @@ def init_fantasy_team_scoring(league_id, league_year):
 
     weekly_scoring_figure = go.Figure(layout_title_text='Fantasy Team Weekly Performance')
     team_data = []
+    category_data = []
 
     for team in league.standings():
         team_id = team.team_id
         team_scoring[team.team_name] = {'scoring': [], 'wins': []}
         weekly_metrics = {'Week': [], 'Score': []}
+        team_categories = {'PTS': 0, 'BLK': 0, 'STL': 0, 'AST': 0, 'REB': 0, 'TO': 0, 'FGM': 0, 'FGA': 0, 'FTM': 0, 'FTA': 0, '3PTM': 0}
         week_idx = 1
         points_for = 0
         points_against = 0
         for matchup in team.schedule:
             home_status = True if matchup.home_team.team_id == team_id else False
             weekly_score = 0
+            print(matchup.home_team_cats)
             if home_status:
                 weekly_score = matchup.home_final_score
                 points_for += matchup.home_final_score
                 points_against += matchup.away_final_score
+                for cat in matchup.home_team_cats:
+                    team_categories[cat] += matchup.home_team_cats[cat]['score']
             else:
                 weekly_score = matchup.away_final_score
                 points_for += matchup.away_final_score
                 points_against += matchup.home_final_score
+                for cat in matchup.away_team_cats:
+                    team_categories[cat] += matchup.away_team_cats[cat]['score']
             team_scoring[team.team_name]['scoring'].append(weekly_score)
             win_status = True if matchup.winner == team.team_name else False
             team_scoring[team.team_name]['wins'].append(win_status)
             weekly_metrics['Week'].append(week_idx)
             weekly_metrics['Score'].append(weekly_score)
             week_idx += 1
+        # Update Categories data
+        team_categories['FT%'] = team_categories['FTM'] / team_categories['FTA']
+        del team_categories['FTM']
+        del team_categories['FTA']
+        team_categories['FG%'] = team_categories['FGM'] / team_categories['FGA']
+        del team_categories['FGM']
+        del team_categories['FGA']
+        team_categories['Team'] = team.team_name
+        category_data.append(team_categories)
         weekly_scoring_figure.add_trace(go.Scatter(x=weekly_metrics['Week'],
                                                    y=weekly_metrics['Score'],
                                                    name=team.team_name))
@@ -339,6 +355,7 @@ def init_fantasy_team_scoring(league_id, league_year):
                                       size='Points For',
                                       color='Team Name',
                                       title='Fantasy Team Comparison')
+    category_df = pd.DataFrame(category_data)
 
     return dcc.Graph(figure=weekly_scoring_figure), dcc.Graph(figure=team_comparison_plot)
 
