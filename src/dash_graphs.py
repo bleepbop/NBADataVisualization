@@ -29,6 +29,12 @@ fantasy_fig = px.scatter(fantasy_df,
                          },
                          hover_name="Player")
 median_fantasy_pts_per_round = find_round_avg_fantasy_pts()
+player_clutch_data = player_clutch_data(nba_allstars_2021)
+print(player_clutch_data.columns)
+clutch_efficiency_fig = px.scatter_ternary(player_clutch_data, a="FG_PCT", b="FT_PCT", c="AST_TO_TOV", hover_name="PLAYER_NAME",
+                                           color="PLAYER_NAME", title='NBA Allstars 2021 Clutch Efficiency')
+clutch_win_pct_fig = px.scatter_3d(player_clutch_data, x='FG_PCT', y='AST_TO_TOV', z='W_PCT', color='PLAYER_NAME',
+                                   hover_name='PLAYER_NAME', title='Offensive Percentages in Relation to Win Percentage')
 
 # Create figure controls.
 controls = dbc.Card(
@@ -140,6 +146,19 @@ app.layout = dbc.Container(
             color="primary",
             dark=True,
         ),
+        html.Hr(),
+        html.Hr(),
+        html.Hr(),
+        html.H3(children='Clutch Data Visualiztions', style={'textAlign': 'center'}, id='clutch-data-plot-header'),
+        dbc.Row(
+            [
+                dbc.Col(dcc.Graph(id='clutch-ternary-plot', figure=clutch_efficiency_fig)),
+                dbc.Col(dcc.Graph(id='clutch-3d-plot', figure=clutch_win_pct_fig))
+            ]
+        ),
+        html.Hr(),
+        html.Hr(),
+        html.Hr(),
         html.Hr(),
         html.Hr(),
         html.Hr(),
@@ -315,7 +334,6 @@ def init_fantasy_team_scoring(league_id, league_year):
         for matchup in team.schedule:
             home_status = True if matchup.home_team.team_id == team_id else False
             weekly_score = 0
-            print(matchup.home_team_cats)
             if home_status:
                 weekly_score = matchup.home_final_score
                 points_for += matchup.home_final_score
@@ -331,7 +349,6 @@ def init_fantasy_team_scoring(league_id, league_year):
                 points_against += matchup.home_final_score
                 if matchup.away_team_cats is not None:
                     for cat in matchup.away_team_cats:
-                        print(cat)
                         if len(cat) == 0 or cat is None:
                             continue
                         team_categories[cat] += matchup.away_team_cats[cat]['score']

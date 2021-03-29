@@ -2,7 +2,9 @@ from nba_api.stats.endpoints import (teamplayeronoffdetails,
                                      leaguehustlestatsplayer,
                                      teamplayerdashboard,
                                      playerestimatedmetrics,
-                                     fantasywidget)
+                                     fantasywidget,
+                                     LeagueDashPlayerClutch,
+                                     PlayerDashboardByClutch)
 from nba_api.stats.static import teams, players
 import pandas as pd
 from pandas import DataFrame
@@ -28,6 +30,35 @@ impact_stats_dict = {"Offensive Rating": 'E_OFF_RATING',
                      "Defensive Rating": 'E_DEF_RATING',
                      "Net Rating": 'E_NET_RATING',
                      "Win Percent": 'W_PCT'}
+
+nba_allstars_2021 = ['Bradley Beal',
+                     'Stephen Curry',
+                     'LeBron James',
+                     'Joel Embiid',
+                     'Ben Simmons',
+                     'Damian Lillard',
+                     'Luka Doncic',
+                     'Kevin Durant',
+                     'Nikola Jokic',
+                     'Nikola Vucevic',
+                     'Rudy Gobert',
+                     'Donovan Mitchell',
+                     'Jaylen Brown',
+                     'Jayson Tatum',
+                     'Kyrie Irving',
+                     'James Harden',
+                     'Giannis Antetokounmpo',
+                     'Zach LaVine',
+                     'Julius Randle',
+                     'Domantas Sabonis',
+                     'Kawhi Leonard',
+                     'Devin Booker',
+                     'Paul George',
+                     'Chris Paul',
+                     'Mike Conley Jr.',
+                     'Anthony Davis',
+                     'Zion Williamson',
+                     'Tobias Harris']
 
 fantasy_pts_by_round = {i: [] for i in range(1, 17)}
 
@@ -144,3 +175,14 @@ def find_round_avg_fantasy_pts():
         median_val = median(fantasy_pts_by_round[round])
         median_round_pts[round] = median_val
     return median_round_pts
+
+def player_clutch_data(players):
+    df_list = []
+    leagueplayerclutch_df = LeagueDashPlayerClutch().get_data_frames()[0]
+    for player in players:
+        player_df = leagueplayerclutch_df.loc[leagueplayerclutch_df['PLAYER_NAME'] == player].copy()
+        player_df['AST_TO_TOV'] = player_df['AST'] / player_df['TOV']
+        df_list.append(player_df)
+    merged_df = pd.concat(df_list)
+    return merged_df
+
